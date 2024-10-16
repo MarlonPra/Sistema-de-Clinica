@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace SistemaClinicaAvanzado
 {
@@ -26,8 +27,9 @@ namespace SistemaClinicaAvanzado
                     Console.WriteLine("6. Actualizar información de paciente");
                     Console.WriteLine("7. Registrar visita médica");
                     Console.WriteLine("8. Ver historial de visitas de un paciente");
-                    Console.WriteLine("9. Salir");
-                    Console.Write("\nSeleccione una opción: ");
+                    Console.WriteLine("9. Formulario para pacientes con depresión");
+                    Console.WriteLine("10. Salir");
+                    Console.WriteLine("Elija una opción:");
 
                     switch (Console.ReadLine())
                     {
@@ -56,6 +58,11 @@ namespace SistemaClinicaAvanzado
                             clinica.VerHistorialVisitas();
                             break;
                         case "9":
+                            clinica.FormularioDepresion();
+                            break;
+                        case "10":
+                            Console.WriteLine("Saliendo...");
+                            Thread.Sleep(1000);
                             salir = true;
                             break;
                         default:
@@ -312,6 +319,52 @@ namespace SistemaClinicaAvanzado
                 Console.WriteLine(visita);
                 Console.WriteLine(new string('-', 70));
             }
+        }
+        public void FormularioDepresion()
+        {
+            Console.WriteLine("Formulario para pacientes con síntomas de depresión");
+
+            Console.WriteLine("¿Con qué frecuencia te sientes triste o decaído? (1: Nunca, 2: A veces, 3: Frecuentemente, 4: Siempre)");
+            int respuesta1 = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("¿Tienes problemas para disfrutar las cosas que antes te hacían feliz? (1: Nunca, 2: A veces, 3: Frecuentemente, 4: Siempre)");
+            int respuesta2 = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("¿Te sientes fatigado o sin energía a menudo? (1: Nunca, 2: A veces, 3: Frecuentemente, 4: Siempre)");
+            int respuesta3 = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("\nRecomendaciones:");
+
+            if (respuesta1 >= 3 && respuesta2 >= 3 && respuesta3 >= 3)
+            {
+                Console.WriteLine("- Parece que estás pasando por un momento muy difícil emocionalmente.");
+                Console.WriteLine("- Te recomendamos hablar con un profesional de la salud mental lo antes posible.");
+                Console.WriteLine("- Trata de buscar apoyo en personas de confianza, ya sea amigos o familiares.");
+                Console.WriteLine("- Considera dedicar tiempo a actividades que te ayuden a desconectarte, como leer o escuchar música.");
+            }
+            else if ((respuesta1 >= 3 && respuesta2 >= 3) || (respuesta1 >= 3 && respuesta3 >= 3) || (respuesta2 >= 3 && respuesta3 >= 3))
+            {
+                Console.WriteLine("- Es posible que estés enfrentando algunos desafíos emocionales importantes.");
+                Console.WriteLine("- Aunque no parezca grave, hablar con un terapeuta puede ayudarte a gestionar tus emociones.");
+                Console.WriteLine("- Realiza actividades que te relajen, como practicar yoga, hacer ejercicio moderado o escribir tus pensamientos.");
+                Console.WriteLine("- Mantén una rutina que te permita descansar y desconectarte de tus preocupaciones diarias.");
+            }
+            else if (respuesta1 >= 3 || respuesta2 >= 3 || respuesta3 >= 3)
+            {
+                Console.WriteLine("- Parece que hay algunos signos de que podrías estar lidiando con emociones difíciles.");
+                Console.WriteLine("- Te sugerimos que busques algún apoyo, ya sea un terapeuta o consejero.");
+                Console.WriteLine("- Intenta implementar hábitos saludables, como mantener una buena alimentación y descansar adecuadamente.");
+                Console.WriteLine("- Hablar con un amigo o familiar también puede ser útil para compartir tus sentimientos.");
+            }
+            else
+            {
+                Console.WriteLine("- Parece que los síntomas no son tan graves, pero aún es importante cuidar de tu bienestar emocional.");
+                Console.WriteLine("- Prueba realizar actividades que te relajen y te hagan sentir mejor, como salir a caminar o practicar un hobby que disfrutes.");
+                Console.WriteLine("- Recuerda que siempre es válido buscar apoyo si sientes que las emociones te abruman.");
+                Console.WriteLine("- Estar en contacto con tus seres queridos puede ayudarte a mantener una buena salud emocional.");
+            }
+
+            Console.WriteLine("- Recuerda que hablar con un profesional siempre es una opción.");
         }
 
         private T ObtenerEntradaValida<T>(string prompt, Func<string, (bool, string, T)> validador)
