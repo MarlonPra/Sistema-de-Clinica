@@ -322,6 +322,7 @@ namespace SistemaClinicaAvanzado
         }
         public void FormularioDepresion()
         {
+            Console.Clear();
             Console.WriteLine("Formulario para pacientes con síntomas de depresión");
 
             Console.WriteLine("¿Con qué frecuencia te sientes triste o decaído? (1: Nunca, 2: A veces, 3: Frecuentemente, 4: Siempre)");
