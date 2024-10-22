@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace exepciones
@@ -8,12 +9,22 @@ namespace exepciones
         static void Main(string[] args)
         {
             Paciente paciente = new Paciente();
-            int contadorErrores = 0; // Contador de errores
+            List<string> errores = new List<string>(); // Lista para errores
+            Queue<Paciente> pacientesQueue = new Queue<Paciente>(); // Cola para pacientes
+            Stack<int> revisionesStack = new Stack<int>(); // Pila para revisiones
+            Dictionary<int, string> especialidadesDict = new Dictionary<int, string>
+            {
+                { 1, "Cardiología" },
+                { 2, "Neurología" },
+                { 3, "Pediatría" }
+            };
+
+            int contadorErrores = 0;
 
             Console.WriteLine("¡Bienvenido al sistema de registro de pacientes del hospital!");
             Console.WriteLine("Por favor, ingresa la información solicitada a continuación.\n");
 
-            // 1. Validación del nombre del paciente (solo letras, espacios y guiones permitidos)
+            // 1. Validación del nombre del paciente
             bool nombreValido = false;
             while (!nombreValido)
             {
@@ -33,6 +44,7 @@ namespace exepciones
                 catch (FormatException ex)
                 {
                     contadorErrores++;
+                    errores.Add(ex.Message);
                     Console.WriteLine($"Error: {ex.Message}. Inténtalo nuevamente.");
                 }
             }
@@ -41,26 +53,16 @@ namespace exepciones
             bool edadValida = false;
             while (!edadValida)
             {
-                try
+                Console.Write("Ingresa la edad del paciente (entre 1 y 120 años): ");
+                if (!int.TryParse(Console.ReadLine(), out paciente.Edad) || paciente.Edad <= 0 || paciente.Edad > 120)
                 {
-                    Console.Write("Ingresa la edad del paciente (entre 1 y 120 años): ");
-                    paciente.Edad = Convert.ToInt32(Console.ReadLine());
-
-                    if (paciente.Edad <= 0 || paciente.Edad > 120)
-                    {
-                        throw new ArgumentOutOfRangeException("Edad", "La edad debe estar entre 1 y 120 años.");
-                    }
+                    contadorErrores++;
+                    errores.Add("La edad debe estar entre 1 y 120 años.");
+                    Console.WriteLine($"Error: La edad debe estar entre 1 y 120 años.");
+                }
+                else
+                {
                     edadValida = true;
-                }
-                catch (FormatException ex)
-                {
-                    contadorErrores++;
-                    Console.WriteLine($"Error de formato: {ex.Message}. Asegúrate de ingresar un número válido.");
-                }
-                catch (ArgumentOutOfRangeException ex)
-                {
-                    contadorErrores++;
-                    Console.WriteLine($"Error: {ex.Message}. Inténtalo nuevamente.");
                 }
             }
 
@@ -83,11 +85,12 @@ namespace exepciones
                 catch (FormatException ex)
                 {
                     contadorErrores++;
+                    errores.Add(ex.Message);
                     Console.WriteLine($"Error: {ex.Message}. Inténtalo nuevamente.");
                 }
             }
 
-            // 4. Validación del diagnóstico (solo letras, espacios y guiones permitidos)
+            // 4. Validación del diagnóstico
             bool diagnosticoValido = false;
             while (!diagnosticoValido)
             {
@@ -107,6 +110,7 @@ namespace exepciones
                 catch (FormatException ex)
                 {
                     contadorErrores++;
+                    errores.Add(ex.Message);
                     Console.WriteLine($"Error: {ex.Message}. Inténtalo nuevamente.");
                 }
             }
@@ -134,51 +138,70 @@ namespace exepciones
                     }
 
                     int promedioRevisiones = diasEnHospital / revisiones;
+                    revisionesStack.Push(revisiones); // Agregar revisiones a la pila
                     calculoValido = true;
                 }
                 catch (FormatException ex)
                 {
                     contadorErrores++;
+                    errores.Add(ex.Message);
                     Console.WriteLine($"Error de formato: {ex.Message}. Asegúrate de ingresar un número válido.");
                 }
                 catch (ArgumentOutOfRangeException ex)
                 {
                     contadorErrores++;
+                    errores.Add(ex.Message);
                     Console.WriteLine($"Error: {ex.Message}. Inténtalo nuevamente.");
                 }
             }
 
-            // 6. Manejo de un índice fuera de rango al seleccionar especialidades
+            // 6. Selección de especialidades
             Console.WriteLine("\nSelecciona la especialidad médica del paciente:");
-            Console.WriteLine("1. Cardiología\n2. Neurología\n3. Pediatría");
+            foreach (var especialidad in especialidadesDict)
+            {
+                Console.WriteLine($"{especialidad.Key}. {especialidad.Value}");
+            }
             bool especialidadValida = false;
-            string[] especialidades = { "Cardiología", "Neurología", "Pediatría" };
             while (!especialidadValida)
             {
                 try
                 {
                     Console.Write("Ingresa el número correspondiente a la especialidad (1-3): ");
-                    int opcionEspecialidad = Convert.ToInt32(Console.ReadLine());
+                    int opcionEspecialidad = int.Parse(Console.ReadLine());
 
-                    if (opcionEspecialidad < 1 || opcionEspecialidad > especialidades.Length)
+                    switch (opcionEspecialidad)
                     {
-                        throw new IndexOutOfRangeException("La especialidad seleccionada no es válida.");
+                        case 1:
+                            paciente.Especialidad = "Cardiología";
+                            break;
+                        case 2:
+                            paciente.Especialidad = "Neurología";
+                            break;
+                        case 3:
+                            paciente.Especialidad = "Pediatría";
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException("Opción", "La opción seleccionada no es válida.");
                     }
 
-                    paciente.Especialidad = especialidades[opcionEspecialidad - 1];
                     especialidadValida = true;
                 }
-                catch (IndexOutOfRangeException ex)
+                catch (ArgumentOutOfRangeException ex)
                 {
                     contadorErrores++;
+                    errores.Add(ex.Message);
                     Console.WriteLine($"Error: {ex.Message}. Inténtalo nuevamente.");
                 }
                 catch (FormatException ex)
                 {
                     contadorErrores++;
+                    errores.Add(ex.Message);
                     Console.WriteLine($"Error de formato: {ex.Message}. Asegúrate de ingresar un número válido.");
                 }
             }
+
+            // Agregar paciente a la cola
+            pacientesQueue.Enqueue(paciente);
 
             // Operación completada con éxito
             Console.WriteLine("\n¡Operación completada exitosamente!");
@@ -194,12 +217,22 @@ namespace exepciones
             // Mostrando el número de errores cometidos
             Console.WriteLine($"\nNúmero de errores cometidos durante la ejecución: {contadorErrores}");
 
+            // Imprimiendo los errores
+            if (errores.Count > 0)
+            {
+                Console.WriteLine("\nDetalles de los errores:");
+                foreach (var error in errores)
+                {
+                    Console.WriteLine($"- {error}");
+                }
+            }
+
             // Finalizando el programa
             Console.WriteLine("\nFinalizando el programa...");
         }
     }
 
-    // Clase Paciente definida dentro del mismo archivo
+    // Clase Paciente
     public class Paciente
     {
         public string Nombre { get; set; }
